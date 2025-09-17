@@ -1,5 +1,10 @@
 extends CharacterBody2D
 
+@export_category("Nodes")
+# Component for listening to input
+@export var input_component: InputComponent
+
+@export_category("Settings")
 # Player movement speed
 @export var speed = 50
 
@@ -28,13 +33,7 @@ signal stamina_updated
 # ---------------------------------- Movement & Animations ---------------------------------------
 func _physics_process(delta):
 	# Get player input
-	var direction: Vector2
-	direction.x = Input.get_action_strength("ui_right") - Input.get_action_strength("ui_left")
-	direction.y = Input.get_action_strength("ui_down") - Input.get_action_strength("ui_up")
-	
-	# If input is digital, normalize it for diagonal movement
-	if abs(direction.x) == 1 and abs(direction.y) == 1:
-		direction = direction.normalized()
+	var direction = Vector2(input_component.input_horizontal, input_component.input_vertical)
 	
 	# Sprinting
 	if Input.is_action_pressed("ui_sprint"):
