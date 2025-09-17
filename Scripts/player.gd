@@ -3,13 +3,27 @@ extends CharacterBody2D
 # Player movement speed
 @export var speed = 50
 
-# Node reference
+# Node references
 @onready var animation_sprite = $AnimatedSprite2D
+@onready var health_bar = $UI/HealthBar
+@onready var stamina_bar = $UI/StaminaBar
 
 # Direction and animation to be updated throughout the game state
 var new_direction = Vector2(0,1) # only move one space
 var animation
 var is_attacking = false
+
+# UI variables
+var health = 100
+var max_health = 100
+var regen_health = 1
+var stamina = 100
+var max_stamina = 100
+var regen_stamina = 5
+
+# Custom signals
+signal health_updated
+signal stamina_updated
 
 # ---------------------------------- Movement & Animations ---------------------------------------
 func _physics_process(delta):
@@ -24,7 +38,10 @@ func _physics_process(delta):
 	
 	# Sprinting
 	if Input.is_action_pressed("ui_sprint"):
-		speed = 100
+		if stamina >= 25:
+			speed = 100
+			stamina = stamina - 20 * delta
+			stamina_updated.emit(stamina, max_stamina)
 	elif Input.is_action_just_released("ui_sprint"):
 		speed = 50
 	
@@ -88,3 +105,21 @@ func returned_direction(direction: Vector2):
 
 func _on_animated_sprite_2d_animation_finished():
 	is_attacking = false
+
+# ------------------------------------ UI -----------------------------------
+func _process(delta):
+	# Calculate health
+	var updated_health = min(health + regen_health * delta, max_health)
+	if updated_health != health:
+		health = updated_health
+		health_updated.emit(health, max_health)
+	# Calcualte stamina
+	var updated_stamina = min(stamina + regen_stamina * delta, max_stamina)
+	if updated_stamina != stamina:
+		stamina = updated_stamina
+		stamina_updated.emit(stamina, max_stamina)
+
+func _ready():
+	# Connect the signals to the UI components' funcions
+	health_updated.connect(health_bar.update_health_ui)
+	stamina_updated.connect(stamina_bar.update_stamina_ui)
