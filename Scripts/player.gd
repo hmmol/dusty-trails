@@ -12,6 +12,9 @@ extends CharacterBody2D
 @onready var animation_sprite = $AnimatedSprite2D
 @onready var health_bar = $UI/HealthBar
 @onready var stamina_bar = $UI/StaminaBar
+@onready var ammo_amount = $UI/AmmoAmount
+@onready var health_amount = $UI/HealthAmount
+@onready var stamina_amount = $UI/StaminaAmount
 
 # Direction and animation to be updated throughout the game state
 var new_direction = Vector2(0,1) # only move one space
@@ -29,6 +32,15 @@ var regen_stamina = 5
 # Custom signals
 signal health_updated
 signal stamina_updated
+signal ammo_pickups_updated
+signal health_pickups_updated
+signal stamina_pickups_updated
+
+# Pickups
+enum Pickups { AMMO, STAMINA, HEALTH }
+var ammo_pickup = 0
+var health_pickup = 0
+var stamina_pickup = 0
 
 # ---------------------------------- Movement & Animations ---------------------------------------
 func _physics_process(delta):
@@ -64,6 +76,20 @@ func _input(event):
 		is_attacking = true
 		var animation = "attack_" + returned_direction(new_direction)
 		animation_sprite.play(animation)
+	# Using health consumables
+	elif event.is_action_pressed("ui_consume_health"):
+		if health > 0 && health_pickup > 0:
+			health_pickup = health_pickup - 1
+			health = min(health + 50, max_health)
+			health_updated.emit(health, max_health)
+			health_pickups_updated.emit(health_pickup)
+	# Using stamina consumables
+	elif event.is_action_pressed("ui_consume_stamina"):
+		if stamina > 0 && stamina_pickup > 0:
+			stamina_pickup = stamina_pickup - 1
+			stamina = min(stamina + 50, max_stamina)
+			stamina_updated.emit(stamina, max_stamina)
+			stamina_pickups_updated.emit(stamina_pickup)
 
 # Animations
 func player_animations(direction: Vector2):
@@ -122,3 +148,22 @@ func _ready():
 	# Connect the signals to the UI components' funcions
 	health_updated.connect(health_bar.update_health_ui)
 	stamina_updated.connect(stamina_bar.update_stamina_ui)
+	ammo_pickups_updated.connect(ammo_amount.update_ammo_pickup_ui)
+	health_pickups_updated.connect(health_amount.update_health_pickup_ui)
+	stamina_pickups_updated.connect(stamina_amount.update_stamina_pickup_ui)
+
+# ----------------------- Consumables ----------------------------------------
+# Add the pickup to our GUI-based inventory
+func add_pickup(item):
+	if item == Pickups.AMMO:
+		ammo_pickup = ammo_pickup + 3 # + 3 bullets
+		ammo_pickups_updated.emit(ammo_pickup)
+		print("ammo val:" + str(ammo_pickup))
+	if item == Pickups.STAMINA:
+		stamina_pickup = stamina_pickup + 1 # + 1 stamina drink
+		stamina_pickups_updated.emit(stamina_pickup)
+		print("stamina val:" + str(stamina_pickup))
+	if item == Pickups.HEALTH:
+		health_pickup = health_pickup + 1 # + 1 health drink
+		health_pickups_updated.emit(health_pickup)
+		print("health val:" + str(health_pickup))
