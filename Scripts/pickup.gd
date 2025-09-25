@@ -6,8 +6,7 @@ extends Area2D
 @onready var sprite = $Sprite2D
 
 # Pickups to choose from
-enum Pickups { AMMO, STAMINA, HEALTH }
-@export var item : Pickups
+@export var item : Global.Pickups
 
 # Texture assets/resources
 var ammo_texture = preload("res://Assets/Icons/shard_01i.png")
@@ -20,22 +19,22 @@ func _process(_delta):
 	# Executes the code in the editor without running the game
 	if Engine.is_editor_hint():
 		# If we choose x item from Inspector dropdown, change the text
-		if item == Pickups.AMMO:
+		if item == Global.Pickups.AMMO:
 			sprite.set_texture(ammo_texture)
-		elif item == Pickups.STAMINA:
+		elif item == Global.Pickups.STAMINA:
 			sprite.set_texture(stamina_texture)
-		elif item == Pickups.HEALTH:
+		elif item == Global.Pickups.HEALTH:
 			sprite.set_texture(health_texture)
 
 func _ready():
 	# Executes code in the game
 	if not Engine.is_editor_hint():
 		# If we choose x item from Inspector dropdown, change the texture
-		if item == Pickups.AMMO:
+		if item == Global.Pickups.AMMO:
 			sprite.set_texture(ammo_texture)
-		elif item == Pickups.STAMINA:
+		elif item == Global.Pickups.STAMINA:
 			sprite.set_texture(stamina_texture)
-		elif item == Pickups.HEALTH:
+		elif item == Global.Pickups.HEALTH:
 			sprite.set_texture(health_texture)
 
 # ------------------------ Using Pickups ---------------

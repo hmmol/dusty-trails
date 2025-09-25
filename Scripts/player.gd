@@ -37,10 +37,9 @@ signal health_pickups_updated
 signal stamina_pickups_updated
 
 # Pickups
-enum Pickups { AMMO, STAMINA, HEALTH }
-var ammo_pickup = 0
-var health_pickup = 0
-var stamina_pickup = 0
+var ammo_pickup = 13
+var health_pickup = 2
+var stamina_pickup = 2
 
 # ---------------------------------- Movement & Animations ---------------------------------------
 func _physics_process(delta):
@@ -155,15 +154,15 @@ func _ready():
 # ----------------------- Consumables ----------------------------------------
 # Add the pickup to our GUI-based inventory
 func add_pickup(item):
-	if item == Pickups.AMMO:
+	if item == Global.Pickups.AMMO:
 		ammo_pickup = ammo_pickup + 3 # + 3 bullets
 		ammo_pickups_updated.emit(ammo_pickup)
 		print("ammo val:" + str(ammo_pickup))
-	if item == Pickups.STAMINA:
+	if item == Global.Pickups.STAMINA:
 		stamina_pickup = stamina_pickup + 1 # + 1 stamina drink
 		stamina_pickups_updated.emit(stamina_pickup)
 		print("stamina val:" + str(stamina_pickup))
-	if item == Pickups.HEALTH:
+	if item == Global.Pickups.HEALTH:
 		health_pickup = health_pickup + 1 # + 1 health drink
 		health_pickups_updated.emit(health_pickup)
 		print("health val:" + str(health_pickup))
